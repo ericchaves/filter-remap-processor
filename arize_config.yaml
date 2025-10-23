@@ -1,0 +1,109 @@
+extensions:
+  headers_setter:
+    headers:
+      - key: space_id
+        value: ${ARIZE_SPACE_ID}
+        action: upsert
+      - key: api_key
+        value: ${ARIZE_API_KEY}
+        action: upsert
+  
+  zpages:
+    endpoint: 0.0.0.0:55679
+  
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+processors:
+  transform:
+    error_mode: ignore
+    trace_statements:
+      - set(resource.attributes["openinference.project.name"], "Span Remap Test 6 - Unfiltered")
+  filter_remap:
+    # Maximum time to retain a trace before forwarding (default: 30s)
+    max_trace_retention: 600s
+    
+    # Time to wait after last span before forwarding (default: 5s)
+    last_span_timeout: 30s
+    
+    # Number of traces to keep in memory
+    num_traces: 50000
+    
+    # Expected traces per second (helps with memory allocation)
+    expected_new_traces_per_sec: 1000
+    
+    # Expected average spans per trace (helps with memory allocation)
+    expected_average_spans_per_trace: 100
+    
+    # Drop root spans if they match the filter (default: false)
+    drop_root_spans: false
+    
+    # Flush all traces on shutdown (default: true)
+    flush_on_shutdown: true
+    
+    # Error mode for OTTL expressions (default: ignore)
+    # Options: ignore, propagate
+    error_mode: propagate
+    
+    # OTTL filtering conditions
+    traces:
+      # Drop spans based on conditions
+      span:
+        # Drop non-arize spans
+        - 'attributes["openinference.span.kind"] == nil'
+      
+  
+  # Batch processor to optimize exports
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  # otlp:
+  #   endpoint: "otlp.arize.com:443"
+  #   auth:
+  #     authenticator: headers_setter
+  nop:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: otelcol
+    const_labels:
+      collector: "custom"
+      processor: "filter_remap"
+service:
+  telemetry:
+    logs:
+      level: info
+      initial_fields:
+        service: otelcol-custom
+    metrics:
+      level: detailed
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 0.0.0.0
+                port: 8888
+
+  extensions: [headers_setter, zpages, pprof]
+  pipelines:
+    # traces pipeline is only used for sending unfiltered traces to arize for debugging purposes, not necessary for production
+    traces:
+      receivers: [otlp]
+      processors: [transform]
+      exporters: [otlp]
+      # exporters: [nop]
+    traces/filtered:
+      receivers: [otlp]
+      processors: [filter_remap]
+      exporters: [otlp]
+      # exporters: [nop]

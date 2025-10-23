@@ -1,0 +1,62 @@
+# Simplified OpenTelemetry Collector Builder Manifest
+# This manifest includes only essential components. Additional receivers, processors,
+# exporters, extensions, and connectors can be added as needed.
+#
+# See: https://github.com/open-telemetry/opentelemetry-collector-contrib
+# For available components and versions
+
+dist:
+  module: github.com/luke-moehlenbrock/otel-collector-custom
+  name: otelcol-arize-custom
+  description: Custom OpenTelemetry Collector with Filter Remap Processor
+  version: 0.1.0
+  output_path: ./_build
+  build_tags: "grpcnotrace"
+
+# Core Extensions - Add auth, storage, or observer extensions as needed
+extensions:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/headerssetterextension v0.135.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.136.0
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.136.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v0.136.0
+
+# Core Exporters - Add additional exporters (Jaeger, Prometheus, Kafka, etc.) as needed
+exporters:
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.136.0
+  - gomod: go.opentelemetry.io/collector/exporter/nopexporter v0.136.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.136.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.136.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter v0.136.0
+
+# Core Processors - Add additional processors (attributes, resource, tail sampling, etc.) as needed
+processors:
+  # Custom trace hierarchy processor with filtering and remapping
+  # Note: This uses independent versioning (not tied to OTEL Collector versions)
+  - gomod: github.com/luke-moehlenbrock/otel-collector-filter-remap-processor/filterremapprocessor v0.1.0
+  # Standard processors
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.136.0
+  - gomod: go.opentelemetry.io/collector/processor/memorylimiterprocessor v0.136.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.136.0
+
+# Core Receivers - Add additional receivers (Prometheus, Jaeger, Kafka, etc.) as needed
+receivers:
+  - gomod: go.opentelemetry.io/collector/receiver/nopreceiver v0.136.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.136.0
+
+# Core Connectors - Add additional connectors (spanmetrics, servicegraph, count, etc.) as needed
+connectors:
+  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.136.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.136.0
+
+# Configuration Providers - Standard set for config file resolution
+providers:
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.21.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.21.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpprovider v1.21.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/httpsprovider v1.21.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.21.0
+
+# Module replacements
+replaces:
+  # Local development of filter remap processor
+  - github.com/luke-moehlenbrock/otel-collector-filter-remap-processor/filterremapprocessor => ../filterremapprocessor

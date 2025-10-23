@@ -1,0 +1,27 @@
+# Environment variables
+.env
+
+# Build artifacts
+_build/
+old_build/
+ocb
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Results and test data
+arize_test/
+benchmark/
+examples/
+
+#others
+.github/
+.vscode/
+
+# OS
+.DS_Store
+

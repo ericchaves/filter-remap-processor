@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Scrape the OpenTelemetry Collector's own metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+    metric_relabel_configs:
+      # Keep only the most relevant metrics
+      - source_labels: [__name__]
+        regex: '(otelcol_processor_filter_remap_.*|otelcol_receiver_accepted_.*|otelcol_receiver_refused_.*|otelcol_exporter_sent_.*|otelcol_exporter_failed_.*|otelcol_process_.*|up|.*_duration_seconds|.*_queue_length|.*_queue_capacity|process_.*|go_.*)'
+        action: keep
+
+  # Scrape the custom processor's Prometheus endpoint
+  - job_name: 'otel-collector-custom-metrics'
+    static_configs:
+      - targets: ['otel-collector:8889']
