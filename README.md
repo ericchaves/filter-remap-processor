@@ -396,18 +396,15 @@ env:
 ### Project Structure
 
 ```
-├── filterremapprocessor/     # Processor implementation
+├── filterremapprocessor/       # Processor implementation
 │   ├── config.go               # Configuration
 │   ├── processor.go            # Main processor logic
 │   ├── trace.go                # Trace data structures
 │   └── hierarchy_node.go       # Span hierarchy management
-├── examples/                   # Example configurations
-├── k8s/                        # Kubernetes manifests
-├── helm/                       # Helm chart
 ├── Dockerfile                  # Docker build definition
 ├── docker-compose.yaml         # Complete stack deployment
 ├── manifest.yaml               # OCB manifest for building
-└── DOCKER_BUILD.md            # Detailed Docker documentation
+├── grafana/                    # grafana dashboard configurations for collector metrics
 ```
 
 ### Running Tests
