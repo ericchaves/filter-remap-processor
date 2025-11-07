@@ -23,11 +23,6 @@ type hierarchyNode interface {
 	IsParentRetained() bool
 }
 
-type retainedNode interface {
-	hierarchyNode
-	SpanData() *spanAndScope
-}
-
 type retainedHierarchyNode struct {
 	spanData       *spanAndScope
 	parentRetained bool

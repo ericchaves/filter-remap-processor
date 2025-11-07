@@ -245,19 +245,18 @@ func TestHierarchyNodeInterface(t *testing.T) {
 		assert.Implements(t, (*hierarchyNode)(nil), node)
 	})
 
-	t.Run("retained node implements retainedNode interface", func(t *testing.T) {
+	t.Run("retained node exposes SpanData", func(t *testing.T) {
+		// We still ensure retainedHierarchyNode exposes SpanData via direct call and compiles.
 		span := ptrace.NewSpan()
 		resource := pcommon.NewResource()
 		scope := pcommon.NewInstrumentationScope()
-
-		var node retainedNode = &retainedHierarchyNode{
+		node := &retainedHierarchyNode{
 			spanData: &spanAndScope{
 				span:                 &span,
 				instrumentationScope: &scope,
 				resource:             &resource,
 			},
 		}
-
 		assert.NotNil(t, node)
 		assert.NotNil(t, node.SpanData())
 	})
