@@ -19,7 +19,6 @@ benchmark/
 examples/
 
 #others
-.github/
 .vscode/
 
 # OS
